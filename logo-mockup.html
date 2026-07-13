@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <title>BAUVOLK – ZEITGEIST</title>
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no">
+        <meta name="description" content="ZEITGEIST – Interaktive Typografie-Animation mit der Schriftart Redaction und ihren verschiedenen Zensur-Variationen.">
+        
+        <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="48x48" href="images/favicon/favicon-48x48.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
+        <link rel="mask-icon" href="images/favicon/safari-pinned-tab.svg" color="#750000">
+        <link rel="shortcut icon" href="images/favicon/favicon.ico">
+        
+        <link rel="stylesheet" href="styles/fonts.css">
+        <link rel="stylesheet" href="styles/general.css">
+        
+        <link rel="preload" as="fetch" crossorigin href="components/header.html">
+        <link rel="preload" as="fetch" crossorigin href="components/databanner.html">
+
+        <script>
+            // VARIABLES
+            const META = {de: "BAUVOLK – ZEITGEIST", en: "BAUVOLK – ZEITGEIST"}
+        </script>
+
+        <script type="text/javascript" src="common.js"></script>
+        
+        <style>
+            /* OVERRIDES & BASE SPECMIEN STYLES */
+            :root {
+                --theme-red: #750000;
+                --theme-red-glow: rgba(117, 0, 0, 0.4);
+                --theme-bright-red: #ff3333;
+                --theme-dark-bg: #090909;
+                --glass-bg: rgba(15, 15, 15, 0.7);
+                --glass-border: rgba(255, 255, 255, 0.08);
+                --glass-text: rgba(255, 255, 255, 0.85);
+            }
+
+            body {
+                background: radial-gradient(circle at center, #1b0000 0%, var(--theme-dark-bg) 100%) !important;
+                background-color: var(--theme-dark-bg) !important;
+                color: #fff !important;
+                overflow: hidden !important;
+                position: relative;
+            }
+
+            /* Custom Grid lines backdrop */
+            body::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: 
+                    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                background-size: 30px 30px;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            /* Main Content Positioning */
+            #content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                padding: 0;
+                padding-top: 60px; /* Leave space for header */
+                overflow: hidden;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* Specimen display wrapper */
+            .display-wrapper {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                max-width: 1200px;
+                padding: 20px;
+                position: relative;
+            }
+
+            /* Overlapping text container for morph crossfades */
+            .text-container {
+                position: relative;
+                display: grid;
+                place-items: center;
+                width: 100%;
+                height: auto;
+            }
+
+            /* The actual animating text layers */
+            .text-layer {
+                grid-area: 1 / 1;
+                font-size: clamp(2.5rem, 12vw, 10rem);
+                text-align: center;
+                letter-spacing: normal;
+                line-height: 1.1;
+                margin: 0;
+                padding: 20px;
+                transition: opacity var(--transition-speed, 0.2s) ease-in-out, filter var(--transition-speed, 0.2s) ease-in-out, text-shadow 0.3s ease;
+                font-family: 'Redaction';
+                text-transform: none;
+                user-select: all;
+                white-space: normal;
+                word-break: break-word;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+                opacity: 0;
+                pointer-events: none;
+                filter: blur(3px);
+            }
+
+            .text-layer.visible {
+                opacity: 1;
+                pointer-events: auto;
+                filter: blur(0px);
+            }
+
+            /* CRT scanlines effect */
+            .crt-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: linear-gradient(
+                    rgba(18, 16, 16, 0) 50%, 
+                    rgba(0, 0, 0, 0.3) 50%
+                );
+                background-size: 100% 4px;
+                z-index: 5;
+                pointer-events: none;
+                opacity: 0.5;
+                transition: opacity 0.3s ease;
+            }
+
+            .crt-overlay.disabled {
+                opacity: 0;
+            }
+
+            /* Metadata Terminal style panel */
+            .specimen-info {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                padding: 16px 24px;
+                font-family: 'ZT Formom', monospace;
+                font-size: 11pt;
+                color: rgba(255, 255, 255, 0.7);
+                border-radius: 4px;
+                min-width: 320px;
+                max-width: 90%;
+                margin-top: 10px;
+                margin-bottom: 25px;
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+                border-left: 3px solid var(--theme-red);
+            }
+
+            .info-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                padding-bottom: 4px;
+            }
+
+            .info-row:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+            .info-label {
+                font-weight: 300;
+                text-transform: uppercase;
+                font-size: 9pt;
+                letter-spacing: 0.05em;
+            }
+
+            .info-val {
+                color: #fff;
+                font-weight: 500;
+                letter-spacing: 0.02em;
+            }
+
+            .redaction-bar-visual {
+                font-family: monospace;
+                letter-spacing: 1px;
+                color: var(--theme-bright-red);
+            }
+
+            /* Floating Glassmorphism Control Console */
+            .control-console {
+                width: 90%;
+                max-width: 800px;
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 12px;
+                padding: 20px 24px;
+                margin-bottom: 40px;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                align-items: center;
+                gap: 24px;
+                z-index: 10;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+            }
+
+            .console-left {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            /* Tactile play/pause and action buttons */
+            .btn-tactile {
+                background: rgba(255, 255, 255, 0.05) !important;
+                border: 1px solid var(--glass-border) !important;
+                color: #fff !important;
+                width: 48px;
+                height: 48px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 8px !important;
+                outline: none;
+            }
+
+            .btn-tactile:hover {
+                background: var(--theme-red) !important;
+                border-color: var(--theme-red) !important;
+                box-shadow: 0 0 15px var(--theme-red-glow);
+                transform: translateY(-2px);
+            }
+
+            .btn-tactile:active {
+                transform: translateY(0);
+                background: rgba(117, 0, 0, 0.7) !important;
+            }
+
+            .status-indicator {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: var(--theme-bright-red);
+                box-shadow: 0 0 10px var(--theme-bright-red);
+                display: inline-block;
+                transition: background-color 0.3s, box-shadow 0.3s;
+            }
+
+            .status-indicator.playing {
+                background-color: #00ff66;
+                box-shadow: 0 0 10px rgba(0, 255, 102, 0.8);
+            }
+
+            /* Custom Sliders */
+            .slider-group {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .slider-label-row {
+                display: flex;
+                justify-content: space-between;
+                font-family: 'ZT Formom', monospace;
+                font-size: 9pt;
+                color: rgba(255, 255, 255, 0.5);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .slider-label-row span.val {
+                color: #fff;
+            }
+
+            input[type=range] {
+                -webkit-appearance: none;
+                width: 100%;
+                background: transparent;
+            }
+
+            input[type=range]:focus {
+                outline: none;
+            }
+
+            input[type=range]::-webkit-slider-runnable-track {
+                width: 100%;
+                height: 6px;
+                cursor: pointer;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 3px;
+                transition: background-color 0.3s;
+            }
+
+            input[type=range]:hover::-webkit-slider-runnable-track {
+                background: rgba(255, 255, 255, 0.18);
+            }
+
+            input[type=range]::-webkit-slider-thumb {
+                height: 18px;
+                width: 18px;
+                border-radius: 50%;
+                background: #fff;
+                cursor: pointer;
+                -webkit-appearance: none;
+                margin-top: -6px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                transition: transform 0.1s, background-color 0.2s;
+            }
+
+            input[type=range]::-webkit-slider-thumb:hover {
+                background: var(--theme-bright-red);
+                transform: scale(1.2);
+            }
+
+            input[type=range]::-moz-range-track {
+                width: 100%;
+                height: 6px;
+                cursor: pointer;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 3px;
+            }
+
+            input[type=range]::-moz-range-thumb {
+                height: 18px;
+                width: 18px;
+                border-radius: 50%;
+                background: #fff;
+                cursor: pointer;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                transition: transform 0.1s, background-color 0.2s;
+            }
+
+            input[type=range]::-moz-range-thumb:hover {
+                background: var(--theme-bright-red);
+                transform: scale(1.2);
+            }
+
+            /* Console right tools */
+            .console-right {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            /* Text customizer container */
+            .specimen-customizer {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 90%;
+                max-width: 800px;
+                margin-bottom: 20px;
+                z-index: 10;
+            }
+
+            .custom-input-wrapper {
+                position: relative;
+                width: 100%;
+                display: flex;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid var(--glass-border);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+
+            .custom-input-wrapper input {
+                flex: 1;
+                background: transparent !important;
+                border: none !important;
+                color: #fff !important;
+                padding: 12px 18px;
+                font-family: 'ZT Formom', monospace;
+                font-size: 11pt;
+                outline: none;
+            }
+
+            .custom-input-wrapper input::placeholder {
+                color: rgba(255, 255, 255, 0.3);
+            }
+
+            .text-fx-options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+                font-family: 'ZT Formom', monospace;
+                font-size: 9pt;
+            }
+
+            .option-chip {
+                padding: 6px 12px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid var(--glass-border);
+                border-radius: 20px;
+                cursor: pointer;
+                transition: all 0.2s;
+                color: rgba(255, 255, 255, 0.6);
+            }
+
+            .option-chip:hover {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .option-chip.active {
+                background: var(--theme-red);
+                border-color: var(--theme-red);
+                color: #fff;
+                box-shadow: 0 0 10px var(--theme-red-glow);
+            }
+
+            /* Responsive design refinements */
+            @media screen and (max-width: 800px) {
+                #content {
+                    padding-top: 80px;
+                }
+
+                .control-console {
+                    grid-template-columns: 1fr;
+                    grid-template-rows: auto auto auto;
+                    gap: 16px;
+                    padding: 16px;
+                }
+
+                .console-left {
+                    justify-content: center;
+                }
+
+                .console-right {
+                    justify-content: center;
+                }
+
+                #zeitgeist-text {
+                    font-size: clamp(2rem, 10vw, 5rem);
+                    letter-spacing: 0.05em;
+                }
+            }
+
+            /* Glitch effect styles */
+            @keyframes fontGlitch {
+                0% {
+                    transform: skew(0deg);
+                    text-shadow: 0 0 5px rgba(255,255,255,0.05);
+                }
+                2% {
+                    transform: skew(4deg);
+                    text-shadow: 3px -3px 0 rgba(255,0,0,0.4), -3px 3px 0 rgba(0,0,255,0.3);
+                }
+                4% {
+                    transform: skew(-3deg);
+                    text-shadow: -2px 2px 0 rgba(255,0,0,0.3), 2px -2px 0 rgba(0,255,0,0.3);
+                }
+                6% {
+                    transform: skew(0deg);
+                    text-shadow: 0 0 5px rgba(255,255,255,0.05);
+                }
+            }
+
+            .text-container.glitch-active {
+                animation: fontGlitch 0.4s ease-out;
+            }
+
+            /* Custom styling to hide native headers */
+            #header, #headerbox {
+                display: none !important;
+            }
+
+            /* Floating escape hatch back button */
+            .btn-back {
+                position: fixed;
+                top: 24px;
+                left: 24px;
+                z-index: 100;
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border) !important;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: rgba(255, 255, 255, 0.85) !important;
+                padding: 8px 16px;
+                font-family: 'ZT Formom', monospace;
+                font-size: 9pt;
+                border-radius: 6px;
+                text-decoration: none;
+                transition: all 0.2s;
+                letter-spacing: 0.05em;
+            }
+
+            .btn-back:hover {
+                color: #fff !important;
+                background: var(--theme-red) !important;
+                border-color: var(--theme-red) !important;
+                box-shadow: 0 0 15px var(--theme-red-glow);
+                transform: translateX(-2px);
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Floating Escape Hatch Back Button -->
+        <a href="index.html" class="btn-back" title="Zurück zur Übersicht"><span lang="de">← ZURÜCK</span><span lang="en">← BACK</span></a>
+
+        <header id="header"></header>
+        
+        <main id="content">
+            <!-- Scanlines Layer -->
+            <div id="scanlines" class="crt-overlay"></div>
+
+            <div class="display-wrapper">
+                <div class="text-container">
+                    <h1 id="text-layer-1" class="text-layer visible">zeitgeist</h1>
+                    <h1 id="text-layer-2" class="text-layer">zeitgeist</h1>
+                </div>
+            </div>
+
+            <!-- Customizer Input -->
+            <div class="specimen-customizer">
+                <div class="custom-input-wrapper">
+                    <input type="text" id="custom-text-input" placeholder="EIGENEN TEXT EINGEBEN..." autocomplete="off">
+                </div>
+                <div class="text-fx-options" style="margin-bottom: 12px;">
+                    <div class="option-chip active" id="case-none" onclick="setCase('none')"><span lang="de">Original</span><span lang="en">Original</span></div>
+                    <div class="option-chip" id="case-upper" onclick="setCase('uppercase')">UPPERCASE</div>
+                    <div class="option-chip" id="case-lower" onclick="setCase('lowercase')">lowercase</div>
+                    <div class="option-chip" id="case-title" onclick="setCase('titlecase')">Title Case</div>
+                    <div style="width: 2px; height: 16px; background: rgba(255,255,255,0.15); align-self: center;"></div>
+                    <div class="option-chip active" id="toggle-crt" onclick="toggleCRT()">CRT SCHIRMEFFEKT</div>
+                    <div class="option-chip" id="toggle-glow" onclick="toggleGlow()">TIEFER GLOW</div>
+                    <div style="width: 2px; height: 16px; background: rgba(255,255,255,0.15); align-self: center;"></div>
+                    <div class="option-chip" id="toggle-loop-mode" onclick="toggleLoopMode()"><span lang="de">Alternierender Loop</span><span lang="en">Alternate Loop</span></div>
+                </div>
+            </div>
+
+            <!-- Font Selection Customizer -->
+            <div class="specimen-customizer" style="margin-bottom: 25px;">
+                <div style="font-family: 'ZT Formom', monospace; font-size: 9pt; color: rgba(255, 255, 255, 0.4); text-align: center; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                    <span lang="de">Aktive Schriftgrade in der Animation</span>
+                    <span lang="en">Active font grades in the animation</span>
+                </div>
+                <div class="text-fx-options" id="font-toggles-container">
+                    <!-- Dynamic toggles will be generated here -->
+                </div>
+            </div>
+
+            <!-- Metadata Info Panel -->
+            <div class="specimen-info">
+                <div class="info-row">
+                    <span class="info-label">AKTUELLE SCHRIFT</span>
+                    <span class="info-val" id="info-font-name">Redaction Regular</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">DATEINAME</span>
+                    <span class="info-val" id="info-font-file" style="font-size: 9.5pt;">Redaction-Regular.woff2</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ZENSURGRAD</span>
+                    <span class="info-val redaction-bar-visual" id="info-redaction-bar">[██████████] 0%</span>
+                </div>
+            </div>
+
+            <!-- Glass Control Console -->
+            <div class="control-console">
+                <div class="console-left">
+                    <button class="btn-tactile" id="play-pause-btn" onclick="togglePlay()" title="Wiedergabe / Pause">
+                        <!-- Play/Pause SVG inside JS -->
+                        <span id="play-pause-icon">⏸</span>
+                    </button>
+                    <div>
+                        <span class="status-indicator playing" id="indicator"></span>
+                    </div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label-row">
+                        <span>Zensurstufe (Schriftart)</span>
+                        <span class="val" id="level-display">Standard</span>
+                    </div>
+                    <input type="range" id="font-level-slider" min="0" max="6" value="0" oninput="scrubFont(this.value)">
+                </div>
+
+                <div class="console-right" style="min-width: 140px;">
+                    <div class="slider-group" style="width: 100%;">
+                        <div class="slider-label-row">
+                            <span>Geschwindigkeit</span>
+                            <span class="val" id="speed-display">400ms</span>
+                        </div>
+                        <input type="range" id="speed-slider" min="50" max="1500" step="50" value="400" oninput="changeSpeed(this.value)">
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="databanner"></div>
+        
+        <script>
+            // REDACTION FONT VARIATIONS CONFIGURATION
+            const REDACTION_STEPS = [
+                { family: 'Redaction', name: 'Standard', file: 'Redaction-Regular.woff2', percent: 0, visual: '[██████████]', enabled: true },
+                { family: 'Redaction 10', name: 'Redaction 10', file: 'Redaction_10-Regular.woff2', percent: 90, visual: '[█░░░░░░░░░]', enabled: true },
+                { family: 'Redaction 20', name: 'Redaction 20', file: 'Redaction_20-Regular.woff2', percent: 80, visual: '[██░░░░░░░░]', enabled: true },
+                { family: 'Redaction 35', name: 'Redaction 35', file: 'Redaction_35-Regular.woff2', percent: 65, visual: '[███░░░░░░░]', enabled: true },
+                { family: 'Redaction 50', name: 'Redaction 50', file: 'Redaction_50-Regular.woff2', percent: 50, visual: '[█████░░░░░]', enabled: true },
+                { family: 'Redaction 70', name: 'Redaction 70', file: 'Redaction_70-Regular.woff2', percent: 30, visual: '[███████░░░]', enabled: true },
+                { family: 'Redaction 100', name: 'Redaction 100', file: 'Redaction_100-Regular.woff2', percent: 10, visual: '[█████████░]', enabled: true }
+            ];
+
+            let activeIndex = 0;
+            let playInterval = null;
+            let currentSpeed = 400; // ms
+            let isPlaying = true;
+            let currentCase = 'none'; // none, uppercase, lowercase, titlecase
+            let isGlowActive = false;
+            let loopDirection = 1; // 1 = forward, -1 = backward
+            let isAlternateLoop = false; // alternate ping-pong loop toggle
+
+            const layer1 = document.getElementById('text-layer-1');
+            const layer2 = document.getElementById('text-layer-2');
+            let activeLayer = layer1;
+            const customInput = document.getElementById('custom-text-input');
+            const fontNameVal = document.getElementById('info-font-name');
+            const fontFileVal = document.getElementById('info-font-file');
+            const redactionBarVal = document.getElementById('info-redaction-bar');
+            const playPauseIcon = document.getElementById('play-pause-icon');
+            const indicator = document.getElementById('indicator');
+            const levelSlider = document.getElementById('font-level-slider');
+            const levelDisplay = document.getElementById('level-display');
+            const speedSlider = document.getElementById('speed-slider');
+            const speedDisplay = document.getElementById('speed-display');
+
+            // Initialize the component hooks
+            load_components(["header", "databanner"]);
+
+            function post_init() {
+                // Initialize default text and start animation loop
+                updateTextDisplay();
+                generateFontToggles();
+                // Set default transition speed to 50% of the active speed (200ms)
+                document.documentElement.style.setProperty('--transition-speed', '200ms');
+                startAnimation();
+                
+                // Set custom input listeners
+                customInput.addEventListener('input', (e) => {
+                    updateTextDisplay();
+                });
+            }
+
+            function startAnimation() {
+                if (playInterval) clearInterval(playInterval);
+                playInterval = setInterval(cycleFont, currentSpeed);
+                isPlaying = true;
+                playPauseIcon.textContent = '⏸';
+                indicator.classList.add('playing');
+            }
+
+            function stopAnimation() {
+                if (playInterval) {
+                    clearInterval(playInterval);
+                    playInterval = null;
+                }
+                isPlaying = false;
+                playPauseIcon.textContent = '▶';
+                indicator.classList.remove('playing');
+            }
+
+            function togglePlay() {
+                if (isPlaying) {
+                    stopAnimation();
+                } else {
+                    startAnimation();
+                }
+            }
+
+            function cycleFont() {
+                // Gather all active font indices
+                const enabledIndices = [];
+                REDACTION_STEPS.forEach((step, idx) => {
+                    if (step.enabled) enabledIndices.push(idx);
+                });
+
+                if (enabledIndices.length === 0) return;
+
+                let activeInEnabled = enabledIndices.indexOf(activeIndex);
+                if (activeInEnabled === -1) {
+                    applyFontState(enabledIndices[0]);
+                    return;
+                }
+
+                if (isAlternateLoop) {
+                    // Ping-pong looping logic
+                    let nextInEnabled = activeInEnabled + loopDirection;
+                    if (nextInEnabled >= enabledIndices.length) {
+                        loopDirection = -1;
+                        nextInEnabled = Math.max(0, enabledIndices.length - 2);
+                    } else if (nextInEnabled < 0) {
+                        loopDirection = 1;
+                        nextInEnabled = Math.min(enabledIndices.length - 1, 1);
+                    }
+                    applyFontState(enabledIndices[nextInEnabled]);
+                } else {
+                    // Normal sequential looping logic
+                    let nextInEnabled = (activeInEnabled + 1) % enabledIndices.length;
+                    applyFontState(enabledIndices[nextInEnabled]);
+                }
+            }
+
+            function applyFontState(index) {
+                activeIndex = parseInt(index);
+                const state = REDACTION_STEPS[activeIndex];
+                
+                // Determine which layer is incoming and outgoing
+                const outgoingLayer = activeLayer;
+                const incomingLayer = (activeLayer === layer1) ? layer2 : layer1;
+
+                // Set the new font on the incoming layer
+                incomingLayer.style.fontFamily = `'${state.family}'`;
+                
+                // Cross-fade: swap visible classes (blur and fade)
+                outgoingLayer.classList.remove('visible');
+                incomingLayer.classList.add('visible');
+                
+                // Update active layer pointer
+                activeLayer = incomingLayer;
+                
+                // Update UI slider & text
+                levelSlider.value = activeIndex;
+                levelDisplay.textContent = state.name;
+
+                // Update Metadata Terminal Info
+                fontNameVal.textContent = state.name + " Regular";
+                fontFileVal.textContent = state.file;
+                redactionBarVal.textContent = `${state.visual} ${state.percent}%`;
+
+                // Brief Glitch effect on font swap (applied to container)
+                triggerGlitchEffect();
+            }
+
+            function scrubFont(value) {
+                stopAnimation();
+                applyFontState(value);
+            }
+
+            function changeSpeed(value) {
+                currentSpeed = parseInt(value);
+                speedDisplay.textContent = currentSpeed + "ms";
+                
+                // Scale transition time dynamically to 50% of cycle speed, max 250ms
+                const transitionMs = Math.min(250, currentSpeed * 0.5);
+                document.documentElement.style.setProperty('--transition-speed', `${transitionMs}ms`);
+
+                if (isPlaying) {
+                    startAnimation();
+                }
+            }
+
+            function triggerGlitchEffect() {
+                const container = document.querySelector('.text-container');
+                container.classList.remove('glitch-active');
+                void container.offsetWidth; // Trigger reflow
+                container.classList.add('glitch-active');
+                
+                // Remove class after animation finishes
+                setTimeout(() => {
+                    container.classList.remove('glitch-active');
+                }, 400);
+            }
+
+            function updateTextDisplay() {
+                let text = customInput.value;
+                if (text === "") {
+                    text = "zeitgeist";
+                }
+
+                let processedText = text;
+                if (currentCase === 'uppercase') {
+                    processedText = text.toUpperCase();
+                } else if (currentCase === 'lowercase') {
+                    processedText = text.toLowerCase();
+                } else if (currentCase === 'titlecase') {
+                    processedText = toTitleCase(text);
+                }
+
+                layer1.textContent = processedText;
+                layer2.textContent = processedText;
+            }
+
+            // Correct casing set
+            function setCase(caseStyle) {
+                currentCase = caseStyle;
+                
+                // Update chips active state
+                document.getElementById('case-none').classList.remove('active');
+                document.getElementById('case-upper').classList.remove('active');
+                document.getElementById('case-lower').classList.remove('active');
+                document.getElementById('case-title').classList.remove('active');
+
+                if (caseStyle === 'none') {
+                    document.getElementById('case-none').classList.add('active');
+                } else if (caseStyle === 'uppercase') {
+                    document.getElementById('case-upper').classList.add('active');
+                } else if (caseStyle === 'lowercase') {
+                    document.getElementById('case-lower').classList.add('active');
+                } else if (caseStyle === 'titlecase') {
+                    document.getElementById('case-title').classList.add('active');
+                }
+
+                updateTextDisplay();
+            }
+
+            function toTitleCase(str) {
+                return str.replace(
+                    /\w\S*/g,
+                    function(txt) {
+                        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                    }
+                );
+            }
+
+            function toggleCRT() {
+                const scanlines = document.getElementById('scanlines');
+                const chip = document.getElementById('toggle-crt');
+                scanlines.classList.toggle('disabled');
+                chip.classList.toggle('active');
+            }
+
+            function toggleGlow() {
+                const chip = document.getElementById('toggle-glow');
+                isGlowActive = !isGlowActive;
+                chip.classList.toggle('active');
+                
+                const shadowVal = isGlowActive 
+                    ? '0 0 15px var(--theme-bright-red), 0 0 30px var(--theme-red-glow)' 
+                    : '0 0 20px rgba(255, 255, 255, 0.05)';
+                    
+                layer1.style.textShadow = shadowVal;
+                layer2.style.textShadow = shadowVal;
+            }
+
+            function toggleLoopMode() {
+                const chip = document.getElementById('toggle-loop-mode');
+                isAlternateLoop = !isAlternateLoop;
+                chip.classList.toggle('active');
+                loopDirection = 1; // Reset direction when toggled
+            }
+
+            function generateFontToggles() {
+                const container = document.getElementById('font-toggles-container');
+                container.innerHTML = '';
+                REDACTION_STEPS.forEach((step, idx) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'option-chip active';
+                    chip.id = `font-toggle-${idx}`;
+                    chip.textContent = step.name;
+                    chip.onclick = () => toggleFontActive(idx);
+                    container.appendChild(chip);
+                });
+            }
+
+            function toggleFontActive(index) {
+                const activeCount = REDACTION_STEPS.filter(s => s.enabled).length;
+                if (REDACTION_STEPS[index].enabled && activeCount <= 1) {
+                    const isDe = localStorage.getItem("bauvolk_language") === "de";
+                    alert(isDe ? "Mindestens eine Schriftart muss aktiv bleiben." : "At least one font must remain active.");
+                    return;
+                }
+
+                REDACTION_STEPS[index].enabled = !REDACTION_STEPS[index].enabled;
+                
+                const chip = document.getElementById(`font-toggle-${index}`);
+                chip.classList.toggle('active');
+
+                // If currently active font was disabled, go to the next active one
+                if (!REDACTION_STEPS[index].enabled && activeIndex === index) {
+                    cycleFont();
+                }
+            }
+        </script>
+    </body>
+</html>
