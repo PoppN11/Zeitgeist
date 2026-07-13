@@ -40,27 +40,20 @@
 .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.14rem;
     color: var(--ink);
     text-decoration: none;
 }
 
-.brand-name {
-    font-size: 1.8rem;
-    font-weight: 900;
-    letter-spacing: -0.075em;
-    line-height: 1;
+.brand-logo {
+    width: 114px;
+    height: auto;
 }
 
-.brand-geist {
-    width: 27px;
-    height: 34px;
+.brand-icon {
+    width: 42px;
+    height: 42px;
     object-fit: contain;
-    transition: transform 300ms var(--ease-out);
-}
-
-.brand:hover .brand-geist {
-    transform: translateY(-3px) rotate(7deg);
 }
 
 .navbar,
@@ -254,15 +247,14 @@
     font-size: clamp(4.5rem, 9.15vw, 9.7rem);
     font-weight: 900;
     letter-spacing: -0.073em;
-    line-height: 0.74;
+    line-height: 0.76;
     text-transform: uppercase;
 }
 
 .hero-line {
     display: block;
-    overflow: hidden;
+    overflow: visible;
     padding-right: 0.08em;
-    padding-bottom: 0.06em;
 }
 
 .hero-line > span {
@@ -320,7 +312,15 @@
     animation: ticker 28s linear infinite;
 }
 
-.ticker span {
+.ticker-group {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 1rem;
+    padding-right: 1rem;
+}
+
+.ticker-term,
+.ticker-divider {
     display: block;
     padding: 0.95rem 0 0.85rem;
     font-size: clamp(1.25rem, 2.2vw, 2rem);
@@ -378,10 +378,27 @@ main > section + section {
     min-height: 230px;
     padding: 1.5rem clamp(2rem, 4vw, 4rem) 2rem;
     border-left: var(--line);
+    transition: background-color 180ms ease;
 }
 
 .outcome:first-child {
     border-left: 0;
+}
+
+.manifesto .interactive-surface,
+.fit .interactive-surface { --hover-background: var(--gray); }
+
+.services .interactive-surface { --hover-background: var(--gray-light); }
+
+.process .interactive-surface { --hover-background: var(--white); }
+
+.interactive-surface {
+    transition: background-color 180ms ease, filter 180ms ease;
+}
+
+.interactive-surface:hover {
+    background-color: var(--hover-background);
+    filter: none;
 }
 
 .outcome > span {
@@ -449,14 +466,6 @@ main > section + section {
 
 .service-card:last-child {
     border-right: 0;
-}
-
-.service-card:hover,
-.service-card:nth-child(1).is-visible:hover,
-.service-card:nth-child(2).is-visible:hover,
-.service-card:nth-child(3).is-visible:hover {
-    transform: none;
-    filter: brightness(0.96);
 }
 
 .service-card-paper,
@@ -553,10 +562,6 @@ main > section + section {
     border-top: 0;
 }
 
-.process-step:hover {
-    background: var(--white);
-}
-
 .step-number {
     font-size: 0.8rem;
     font-weight: 800;
@@ -628,6 +633,7 @@ main > section + section {
     font-size: clamp(1.15rem, 2vw, 1.65rem);
     font-weight: 600;
     line-height: 1.15;
+    transition: background-color 180ms ease;
 }
 
 .fit-scenarios p:first-child {
@@ -677,7 +683,7 @@ main > section + section {
     padding: 0;
     border-bottom: var(--line);
     color: var(--ink);
-    background: var(--paper);
+    background: var(--gray);
 }
 
 .request > .container {
@@ -687,7 +693,7 @@ main > section + section {
 
 .request-grid {
     display: grid;
-    grid-template-columns: minmax(340px, 0.8fr) minmax(520px, 1.2fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0;
     align-items: stretch;
 }
@@ -714,7 +720,7 @@ main > section + section {
 }
 
 .request-intro > p:not(.section-label) {
-    max-width: 520px;
+    max-width: 600px;
     color: var(--gray-dark);
 }
 
@@ -745,7 +751,7 @@ main > section + section {
     border: 0;
     border-left: var(--line);
     color: var(--ink);
-    background: var(--paper);
+    background: var(--gray);
     box-shadow: none;
 }
 
@@ -900,18 +906,10 @@ main > section + section {
     gap: 1rem;
 }
 
-.footer-word {
-    font-size: clamp(2.5rem, 5vw, 5rem);
-    font-weight: 900;
-    letter-spacing: -0.08em;
-    line-height: 1;
-}
-
-.footer-brand img {
-    width: 52px;
-    height: 66px;
+.footer-wordmark {
+    width: min(100%, 350px);
+    height: auto;
     filter: invert(1);
-    object-fit: contain;
 }
 
 .footer-statement {
@@ -1009,7 +1007,7 @@ main > section + section {
 }
 
 @keyframes ticker {
-    to { transform: translateX(-50%); }
+    to { transform: translateX(-16.6666667%); }
 }
 
 @keyframes banner-in {
@@ -1187,13 +1185,13 @@ main > section + section {
         padding: 0 8px 0 14px;
     }
 
-    .brand-name {
-        font-size: 1.5rem;
+    .brand-logo {
+        width: 100px;
     }
 
-    .brand-geist {
-        width: 23px;
-        height: 29px;
+    .brand-icon {
+        width: 35px;
+        height: 35px;
     }
 
     .navbar {
@@ -1218,7 +1216,7 @@ main > section + section {
 
     .hero-title {
         font-size: clamp(3.55rem, 17vw, 6.2rem);
-        line-height: 0.77;
+        line-height: 0.79;
     }
 
 
@@ -1242,7 +1240,7 @@ main > section + section {
         width: 100%;
     }
 
-    .ticker span {
+    .ticker-term {
         padding-block: 0.8rem;
         font-size: 1.25rem;
     }
@@ -1300,10 +1298,6 @@ main > section + section {
         gap: 0.75rem;
         min-height: 150px;
         padding: 1.5rem 32px;
-    }
-
-    .process-step:hover {
-        padding-left: 32px;
     }
 
     .fit-grid {
@@ -1378,9 +1372,8 @@ main > section + section {
         font-size: 16.4vw;
     }
 
-    .footer-brand img {
-        width: 42px;
-        height: 54px;
+    .footer-wordmark {
+        width: 250px;
     }
 }
 

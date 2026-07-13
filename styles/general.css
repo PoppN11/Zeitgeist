@@ -45,6 +45,16 @@ body.menu-open {
     overflow: hidden;
 }
 
+body.menu-open::before {
+    position: fixed;
+    z-index: 900;
+    inset: 0;
+    background: rgb(17 17 17 / 0.18);
+    content: "";
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
 img,
 svg {
     display: block;
