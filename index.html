@@ -225,10 +225,7 @@
                             <textarea id="formMessage" name="message" rows="5" placeholder="Ein paar Sätze genügen." required></textarea>
                         </div>
 
-                        <label class="privacy-check" for="formAcceptPrivacy">
-                            <input type="checkbox" id="formAcceptPrivacy" required>
-                            <span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und akzeptiere sie.</span>
-                        </label>
+                        <p class="privacy-check">Mit dem Absenden werden Ihre Angaben zur Bearbeitung Ihrer Anfrage an FormSubmit übermittelt. Details finden Sie in der <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
 
                         <p class="form-status" id="formStatus" aria-live="polite"></p>
                         <button type="submit" class="btn btn-form-submit">Anfrage senden <span aria-hidden="true">→</span></button>
@@ -239,6 +236,8 @@
     </main>
 
     <footer id="footer" class="site-footer"></footer>
+
+    <!-- Cookie/Data Banner Section (Dynamically Loaded) -->
     <aside id="databanner" class="databanner" aria-label="Cookie-Einstellungen"></aside>
 </body>
 </html>
