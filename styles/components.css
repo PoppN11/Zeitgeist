@@ -624,9 +624,10 @@ main > section + section {
 
 .fit-scenarios p {
     display: grid;
-    grid-template-columns: 40px 1fr;
+    grid-template-columns: 40px minmax(0, 1fr);
     gap: 0.75rem;
     margin: 0;
+    min-width: 0;
     align-items: center;
     padding: 1.5rem clamp(2rem, 5vw, 5rem);
     border-top: var(--line);
@@ -1101,8 +1102,19 @@ main > section + section {
     .manifesto > .container,
     .process > .container,
     .fit-grid,
-    .request-grid {
-        grid-template-columns: 1fr;
+    .request-grid,
+    .services-intro,
+    .service-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .manifesto > .container > *,
+    .process > .container > *,
+    .fit-grid > *,
+    .request-grid > *,
+    .services-intro > *,
+    .service-grid > * {
+        min-width: 0;
     }
 
     .manifesto-copy {
@@ -1114,7 +1126,6 @@ main > section + section {
     }
 
     .service-grid {
-        grid-template-columns: 1fr;
         gap: 0;
     }
 
@@ -1294,7 +1305,7 @@ main > section + section {
     }
 
     .process-step {
-        grid-template-columns: 48px 1fr;
+        grid-template-columns: 48px minmax(0, 1fr);
         gap: 0.75rem;
         min-height: 150px;
         padding: 1.5rem 32px;
@@ -1324,7 +1335,7 @@ main > section + section {
     }
 
     .form-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0;
     }
 
