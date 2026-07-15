@@ -236,8 +236,8 @@ function init_join_form() {
                 formContainer.innerHTML = `
                     <div class="success-overlay" role="status" tabindex="-1">
                         <span class="success-kicker">✓ Nachricht unterwegs</span>
-                        <h2>Anfrage<br>raus.</h2>
-                        <p>Danke. Wir melden uns mit einer ersten Einschätzung und dem sinnvollsten nächsten Schritt.</p>
+                        <h2>Danke.</h2>
+                        <p>Wir melden uns bei Ihnen. Unverbindlich, pragmatisch und ohne Verkaufsgespräch.</p>
                     </div>`;
                 formContainer.querySelector(".success-overlay")?.focus();
             }
